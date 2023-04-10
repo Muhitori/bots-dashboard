@@ -2,6 +2,9 @@ import { Button, Container, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { FC, useEffect, useState } from "react";
 import axios from "axios";
+import { snackbarGenerator } from "@/components/SnackbarGenerator";
+import { LoadingComponent } from "@/components/LoadingComponent";
+
 import type { IBot } from "../../../lib/models/Bot";
 
 type RenderBotData = IBot & { activeUsersCount: number; usersCount: number };
@@ -35,20 +38,26 @@ export const MainSection = () => {
 		effect();
 	}, []);
 
-	const handler = async () => {
+	const testHandler = async () => {
 		await axios.post("/api/bots", { botName: "test", token: "test" });
 	};
+
+	const snackHandler = () => snackbarGenerator.info("test");
 
 	return (
 		<Container>
 			<Typography textAlign='center' variant='h1'>
 				Main page
 			</Typography>
-			<Button onClick={handler} variant='outlined'>
+			<Button onClick={testHandler} variant='outlined'>
 				Create test
 			</Button>
 
-			{Boolean(bots.length) &&
+			<Button onClick={snackHandler} variant='outlined'>
+				Create notification
+			</Button>
+
+			{Boolean(bots.length) ? (
 				bots.map(({ botName, token, activeUsersCount, usersCount }, index) => (
 					<Box
 						key={`${botName}-${index}`}
@@ -62,7 +71,10 @@ export const MainSection = () => {
 						<Article label='Total users' value={usersCount} />
 						<Article label='Active users' value={activeUsersCount} />
 					</Box>
-				))}
+				))
+			) : (
+				<LoadingComponent />
+			)}
 		</Container>
 	);
 };
